@@ -5,7 +5,10 @@ A collection of awesome, _grep-like_ commands for the `nmap` greppable output
  output into readable formats.
 
 All of the below commands assume the output was saved to a file called
-`output.grep`.
+`output.grep`. The example command to produce this file as well as the sample
+outputs was: `nmap -v --reason 127.0.0.1 -sV -oG output.grep -p-`.
+
+Finally, the `NMAP_FILE` variable is set to contain `output.grep`.
 
 # commands
 * [Count Number of Open Ports](#count-number-of-open-ports)
@@ -17,21 +20,25 @@ All of the below commands assume the output was saved to a file called
 
 ### command
 ```bash
-egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | \
-awk '{printf "Host: %-20s Ports Open: %d\n" , $1, NF-1}' | sort -k 5 -g
+NMAP_FILE=output.grep
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
+sed -n -e 's/Ignored.*//p' | \
+awk -F, '{split($0,a," "); printf "Host: %-20s Ports Open: %d\n" , a[1], NF}' \
+| sort -k 5 -g
 ```
 
 ### explained
 ```bash
-$ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | \
-#        | └──────┬──────┘      |                   |   └─ Select the rest of
-#        |        |             |                   |       the fields which
-#        |        |             |                   |       will be the open
-#        |        |             |                   |       ports.
-#        |        |             |                   |
-#        |        |             |                   └─ Select the second field
-#        |        |             |                       to print which will
-#        |        |             |                       be IP Address
+$ NMAP_FILE=output.grep
+$ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
+#        | └──────┬──────┘      |                  |   └─ Select the rest of
+#        |        |             |                  |       the fields which
+#        |        |             |                  |       will be the open
+#        |        |             |                  |       ports.
+#        |        |             |                  |
+#        |        |             |                  └─ Select the second field
+#        |        |             |                      to print which will
+#        |        |             |                      be IP Address
 #        |        |             |
 #        |        |             └─ The file containing the grepable output.
 #        |        |
@@ -39,33 +46,47 @@ $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | \
 #        |            'Status: Up'
 #        |
 #        └─ Inverse the pattern match
-    awk '{printf "Host: %-20s Ports Open: %d\n" , $1, NF-1}' | sort -k 5 -g
-#          |            └─┬─┘                     |   └─ Number fields
-#          |              |                       |       available, minus the
-#          |              |                       |       one already matched
-#          |              |                       |       for the IP.
-#          |              |                       |
-#          |              |                       └─ The IP Address
-#          |              |
-#          |              └─ Pad the string to 20 spaces
-#          |
-#          └─ Print a string from a format string
+    sed -n -e 's/Ignored.*//p' | \
+#        |  | └──────┬───────┘
+#        |  |        └─ Remove text from the string 'Ignored' onwards.
+#        |  |
+#        |  └─ Specify the script to execute.
+#        |
+#        └─ Be quiet on errors.
+    awk -F, '{split($0,a," "); printf "Host: %-20s Ports Open: %d\n" , a[1], NF}' | \
+#        |    └──────┬──────┘                └─┬─┘                     └─┬─┘ |
+#        |           |                         |  Use the second element ┘   |            
+#        |           |                         |   in array a defined by     |
+#        |           |                         |   the previous split().     |
+#        |           |                         |                             |
+#        |           |                         |      The total columns ─────┘
+#        |           |                         |        extracted.
+#        |           |                         |      
+#        |           |                         └─ Pad the string to 20 spaces.
+#        |           |                     
+#        |           └─ Split the item in the first column again by space,
+#        |               storing the resultant array into a.
+#        |
+#        └─ Print a string from a format string
+    sort -k 5 -g
 ```
 
 ## print the top 10 ports
 
 ### command
 ```bash
-egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | \
+NMAP_FILE=output.grep
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f4- | \
 sed -n -e 's/Ignored.*//p' | tr ',' '\n' | sed -e 's/^[ \t]*//' | \
 sort -n | uniq -c | sort -k 1 -r | head -n 10
 ```
 
 ### explained
 ```bash
-$ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | \
-#        | └──────┬──────┘      |                   └─ Select only the fields
-#        |        |             |                       with the port details.
+$ NMAP_FILE=output.grep
+$ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f4- | \
+#        | └──────┬──────┘      |                  └─ Select only the fields
+#        |        |             |                      with the port details.
 #        |        |             |
 #        |        |             └─ The file containing the grepable output.
 #        |        |
@@ -100,8 +121,10 @@ $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | \
 
 ### command
 ```bash
-egrep -v "^#|Status: Up" output.grep  | cut -d ' ' -f4- | tr ',' '\n' | \
-sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c | sort -k 1 -nr
+NMAP_FILE=output.grep
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f4- | tr ',' '\n' | \
+sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c \
+| sort -k 1 -nr
 ```
 
 ## top service names
@@ -109,6 +132,8 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c |
 ### command
 
 ```bash
-egrep -v "^#|Status: Up" output.grep  | cut -d ' ' -f4- | tr ',' '\n' | \
-sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c | sort -k 1 -nr
+NMAP_FILE=output.grep
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f4- | tr ',' '\n' | \
+sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c \
+| sort -k 1 -nr
 ```
