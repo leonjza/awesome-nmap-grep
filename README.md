@@ -189,7 +189,9 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c \
 ### command
 ```bash
 NMAP_FILE=output.grep
-egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | sed -n -e 's/Ignored.*//p'  | awk '{print "Host: " $1 " Ports: " NF-1; for (i=2; i<=NF; i++) { split($i,a,"/"); printf "%-8s %s/%-5s %s\n" , a[2], a[3], a[1], a[5]}; }'
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
+sed -n -e 's/Ignored.*//p'  | \
+awk '{print "Host: " $1 " Ports: " NF-1; for (i=2; i<=NF; i++) { split($i,a,"/"); printf "%-8s %s/%-5s %s\n" , a[2], a[3], a[1], a[5]}; }'
 ```
 
 ### output
