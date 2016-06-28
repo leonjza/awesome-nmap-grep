@@ -1,4 +1,4 @@
-# awesome-nmap-grep
+# awesome-nmap-grep 💥
 
 A collection of awesome, _grep-like_ commands for the `nmap` greppable output
 (`-oG`) format. This repository aims to serve as a quick reference to modify the
