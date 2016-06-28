@@ -9,6 +9,13 @@ All of the below commands assume the output was saved to a file called
 
 ## count number of open ports
 
+### command
+
+```bash
+egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | awk '{printf "Host: %-20s Ports Open: %d\n" , $1, NF-1}' | sort -k 5 -g
+```
+
+### explained
 ```bash
 $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | \
 #   |   |       |               |           |       |   |     └─ Continue the
@@ -58,6 +65,13 @@ $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | \
 
 ## print the top 10 ports
 
+### command
+
+```bash
+egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | sed -n -e 's/Ignored.*//p' | tr ',' '\n' | sed -e 's/^[ \t]*//' | sort -n | uniq -c | sort -k 1 -r | head -n 10
+```
+
+### explained
 ```bash
 $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | \
 #   |   |       |               |           |       |   └─ Continue the
@@ -109,4 +123,3 @@ $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | \
 #   |
 #   └─ Sort lines numerically or alphabetically.
 ```
-
