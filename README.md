@@ -215,3 +215,31 @@ open     tcp/49153 unknown
 filtered tcp/54695
 filtered tcp/58369
 ```
+
+## banner grab
+
+### command
+```bash
+NMAP_FILE=output.grep
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f2 -f4- | awk -F, '{split($1,a," "); split(a[2],b,"/"); print a[1] " " b[1]; for(i=2; i<=NF; i++) { split($i,c,"/"); print a[1] c[1] }}' | xargs -L1 nc -v -w1
+```
+
+### output
+*Sample*
+```bash
+found 0 associations
+found 1 connections:
+     1:	flags=82<CONNECTED,PREFERRED>
+	outif lo0
+	src 127.0.0.1 port 52224
+	dst 127.0.0.1 port 3306
+	rank info not available
+	TCP aux info available
+
+Connection to 127.0.0.1 port 3306 [tcp/mysql] succeeded!
+Y
+5.5.5-10.1.14-MariaDB�uds9^MIf��!?�EgVZ>iv7KTD7mysql_native_passwordfound 0 associations
+
+nc: connectx to 127.0.0.1 port 54695 (tcp) failed: Connection refused
+nc: connectx to 127.0.0.1 port 58369 (tcp) failed: Connection refused
+```
