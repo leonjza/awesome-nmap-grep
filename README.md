@@ -7,6 +7,10 @@ A collection of awesome, _grep-like_ commands for the `nmap` greppable output
 All of the below commands assume the output was saved to a file called
 `output.grep`.
 
+# commands
+* Count Number of Open Ports(#count-number-of-open-ports)
+* Top 10 Open Ports (#print-the-top-10-ports)
+
 ## count number of open ports
 
 ### command
