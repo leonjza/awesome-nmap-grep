@@ -6,7 +6,7 @@ A collection of awesome, _grep-like_ commands for the `nmap` greppable output
 
 All of the below commands assume the output was saved to a file called
 `output.grep`. The example command to produce this file as well as the sample
-outputs was: `nmap -v --reason 127.0.0.1 -sV -oG output.grep -p-`.
+outputs was: `nmap -v --reason 127.0.0.1 -oG output.grep -p-`.
 
 Finally, the `NMAP_FILE` variable is set to contain `output.grep`.
 
@@ -25,6 +25,11 @@ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
 sed -n -e 's/Ignored.*//p' | \
 awk -F, '{split($0,a," "); printf "Host: %-20s Ports Open: %d\n" , a[1], NF}' \
 | sort -k 5 -g
+```
+
+### output
+```bash
+Host: 127.0.0.1            Ports Open: 16
 ```
 
 ### explained
@@ -81,6 +86,20 @@ sed -n -e 's/Ignored.*//p' | tr ',' '\n' | sed -e 's/^[ \t]*//' | \
 sort -n | uniq -c | sort -k 1 -r | head -n 10
 ```
 
+### output
+```bash
+1 9001/open/tcp//tor-orport?///
+1 9000/open/tcp//cslistener?///
+1 8080/open/tcp//http-proxy///
+1 80/open/tcp//http//Caddy/
+1 6379/open/tcp//redis//Redis key-value store/
+1 631/open/tcp//ipp//CUPS 2.1/
+1 6234/open/tcp/////
+1 58377/filtered/tcp/////
+1 53/open/tcp//domain//dnsmasq 2.76/
+1 49153/open/tcp//mountd//1-3/
+```
+
 ### explained
 ```bash
 $ NMAP_FILE=output.grep
@@ -127,6 +146,17 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c \
 | sort -k 1 -nr
 ```
 
+### output
+```bash
+2 Caddy
+2 1-3 (RPC 100005)
+1 dnsmasq 2.76
+1 Redis key-value store
+1 OpenSSH 6.9 (protocol 2.0)
+1 MySQL 5.5.5-10.1.14-MariaDB
+1 CUPS 2.1
+```
+
 ## top service names
 
 ### command
@@ -136,4 +166,49 @@ NMAP_FILE=output.grep
 egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f4- | tr ',' '\n' | \
 sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c \
 | sort -k 1 -nr
+```
+
+### output
+```bash
+2 mountd
+2 http
+1 unknown
+1 tor-orport?
+1 ssl|https
+1 ssh
+1 redis
+1 mysql
+1 ipp
+1 http-proxy
+1 domain
+1 cslistener?
+```
+
+## hosts and open ports
+
+### command
+```bash
+NMAP_FILE=output.grep
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | sed -n -e 's/Ignored.*//p'  | awk '{print "Host: " $1 " Ports: " NF-1; for (i=2; i<=NF; i++) { split($i,a,"/"); printf "%-8s %s/%-5s %s\n" , a[2], a[3], a[1], a[5]}; }'
+```
+
+### output
+```bash
+Host: 127.0.0.1 Ports: 16
+open     tcp/22    ssh
+open     tcp/53    domain
+open     tcp/80    http
+open     tcp/443   https
+open     tcp/631   ipp
+open     tcp/3306  mysql
+open     tcp/4767  unknown
+open     tcp/6379
+open     tcp/8080  http-proxy
+open     tcp/8081  blackice-icecap
+open     tcp/9000  cslistener
+open     tcp/9001  tor-orport
+open     tcp/49152 unknown
+open     tcp/49153 unknown
+filtered tcp/54695
+filtered tcp/58369
 ```
