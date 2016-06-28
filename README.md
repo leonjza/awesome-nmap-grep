@@ -222,7 +222,9 @@ filtered tcp/58369
 ### command
 ```bash
 NMAP_FILE=output.grep
-egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f2 -f4- | awk -F, '{split($1,a," "); split(a[2],b,"/"); print a[1] " " b[1]; for(i=2; i<=NF; i++) { split($i,c,"/"); print a[1] c[1] }}' | xargs -L1 nc -v -w1
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f2 -f4- | \
+awk -F, '{split($1,a," "); split(a[2],b,"/"); print a[1] " " b[1]; for(i=2; i<=NF; i++) { split($i,c,"/"); print a[1] c[1] }}' \
+ | xargs -L1 nc -v -w1
 ```
 
 ### output
