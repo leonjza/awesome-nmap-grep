@@ -16,6 +16,7 @@ Finally, the `NMAP_FILE` variable is set to contain `output.grep`.
 * [Top Service Identifiers](#top-service-identifiers)
 * [Top Service Names](#top-service-names)
 * [Hosts and Open Ports](#hosts-and-open-ports)
+* [Banner Grab](#banner-grab)
 
 ## count number of open ports
 
