@@ -10,11 +10,12 @@ All of the below commands assume the output was saved to a file called
 # commands
 * [Count Number of Open Ports](#count-number-of-open-ports)
 * [Top 10 Open Ports](#print-the-top-10-ports)
+* [Top Service Identifiers](#top-service-identifiers)
+* [Top Service Names](#top-service-names)
 
 ## count number of open ports
 
 ### command
-
 ```bash
 egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | awk '{printf "Host: %-20s Ports Open: %d\n" , $1, NF-1}' | sort -k 5 -g
 ```
@@ -70,7 +71,6 @@ $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f2 -f4- | \
 ## print the top 10 ports
 
 ### command
-
 ```bash
 egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | sed -n -e 's/Ignored.*//p' | tr ',' '\n' | sed -e 's/^[ \t]*//' | sort -n | uniq -c | sort -k 1 -r | head -n 10
 ```
@@ -126,4 +126,19 @@ $ egrep -v "^#|Status: Up" output.grep | cut -d' ' -f4- | \
 #   |    └─ Sort numerically.
 #   |
 #   └─ Sort lines numerically or alphabetically.
+```
+
+## top service identifiers
+
+### command
+```bash
+egrep -v "^#|Status: Up" output.grep  | cut -d ' ' -f4- | tr ',' '\n' | sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c | sort -k 1 -nr
+```
+
+## top service names
+
+### command
+
+```bash
+egrep -v "^#|Status: Up" output.grep  | cut -d ' ' -f4- | tr ',' '\n' | sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c | sort -k 1 -nr
 ```
