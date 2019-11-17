@@ -10,7 +10,8 @@ outputs was: `nmap -v --reason 127.0.0.1 -sV -oG output.grep -p-`.
 
 Finally, the `NMAP_FILE` variable is set to contain `output.grep`.
 
-# commands
+## commands
+
 * [Count Number of Open Ports](#count-number-of-open-ports)
 * [Top 10 Open Ports](#print-the-top-10-ports)
 * [Top Service Identifiers](#top-service-identifiers)
@@ -21,6 +22,7 @@ Finally, the `NMAP_FILE` variable is set to contain `output.grep`.
 ## count number of open ports
 
 ### command
+
 ```bash
 NMAP_FILE=output.grep
 
@@ -31,11 +33,13 @@ awk -F, '{split($0,a," "); printf "Host: %-20s Ports Open: %d\n" , a[1], NF}' \
 ```
 
 ### output
+
 ```bash
 Host: 127.0.0.1            Ports Open: 16
 ```
 
 ### explained
+
 ```bash
 $ NMAP_FILE=output.grep
 
@@ -64,15 +68,15 @@ $ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
 #        └─ Be quiet on errors.
     awk -F, '{split($0,a," "); printf "Host: %-20s Ports Open: %d\n" , a[1], NF}' | \
 #        |    └──────┬──────┘                └─┬─┘                     └─┬─┘ |
-#        |           |                         |  Use the second element ┘   |            
+#        |           |                         |  Use the second element ┘   |
 #        |           |                         |   in array a defined by     |
 #        |           |                         |   the previous split().     |
 #        |           |                         |                             |
 #        |           |                         |      The total columns ─────┘
 #        |           |                         |        extracted.
-#        |           |                         |      
+#        |           |                         |
 #        |           |                         └─ Pad the string to 20 spaces.
-#        |           |                     
+#        |           |
 #        |           └─ Split the item in the first column again by space,
 #        |               storing the resultant array into a.
 #        |
@@ -83,6 +87,7 @@ $ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
 ## print the top 10 ports
 
 ### command
+
 ```bash
 NMAP_FILE=output.grep
 
@@ -92,6 +97,7 @@ sort -n | uniq -c | sort -k 1 -r | head -n 10
 ```
 
 ### output
+
 ```bash
 1 9001/open/tcp//tor-orport?///
 1 9000/open/tcp//cslistener?///
@@ -106,6 +112,7 @@ sort -n | uniq -c | sort -k 1 -r | head -n 10
 ```
 
 ### explained
+
 ```bash
 $ NMAP_FILE=output.grep
 
@@ -145,6 +152,7 @@ $ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f4- | \
 ## top service identifiers
 
 ### command
+
 ```bash
 NMAP_FILE=output.grep
 
@@ -154,6 +162,7 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $7}' | grep -v "^$" | sort | uniq -c \
 ```
 
 ### output
+
 ```bash
 2 Caddy
 2 1-3 (RPC 100005)
@@ -177,6 +186,7 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c \
 ```
 
 ### output
+
 ```bash
 2 mountd
 2 http
@@ -195,6 +205,7 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c \
 ## hosts and open ports
 
 ### command
+
 ```bash
 NMAP_FILE=output.grep
 
@@ -204,6 +215,7 @@ awk '{print "Host: " $1 " Ports: " NF-1; $1=""; for(i=2; i<=NF; i++) { a=a" "$i;
 ```
 
 ### output
+
 ```bash
 Host: 127.0.0.1 Ports: 16
 open     tcp/22    ssh
@@ -227,6 +239,7 @@ filtered tcp/58369
 ## banner grab
 
 ### command
+
 ```bash
 NMAP_FILE=output.grep
 
@@ -236,16 +249,18 @@ awk -F, '{split($1,a," "); split(a[2],b,"/"); print a[1] " " b[1]; for(i=2; i<=N
 ```
 
 ### output
+
 *Sample*
+
 ```bash
 found 0 associations
 found 1 connections:
-     1:	flags=82<CONNECTED,PREFERRED>
-	outif lo0
-	src 127.0.0.1 port 52224
-	dst 127.0.0.1 port 3306
-	rank info not available
-	TCP aux info available
+     1: flags=82<CONNECTED,PREFERRED>
+    outif lo0
+    src 127.0.0.1 port 52224
+    dst 127.0.0.1 port 3306
+    rank info not available
+    TCP aux info available
 
 Connection to 127.0.0.1 port 3306 [tcp/mysql] succeeded!
 Y
