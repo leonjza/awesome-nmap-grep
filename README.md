@@ -26,7 +26,7 @@ Finally, the `NMAP_FILE` variable is set to contain `output.grep`.
 ```bash
 NMAP_FILE=output.grep
 
-egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2,4- | \
 sed -n -e 's/Ignored.*//p' | \
 awk -F, '{split($0,a," "); printf "Host: %-20s Ports Open: %d\n" , a[1], NF}' \
 | sort -k 5 -g
@@ -43,11 +43,11 @@ Host: 127.0.0.1            Ports Open: 16
 ```bash
 $ NMAP_FILE=output.grep
 
-$ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
-#        | └──────┬──────┘      |                  |   └─ Select the rest of
-#        |        |             |                  |       the fields which
-#        |        |             |                  |       will be the open
-#        |        |             |                  |       ports.
+$ egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2,4- | \
+#        | └──────┬──────┘      |                  |  └─ Select the rest of
+#        |        |             |                  |      the fields which
+#        |        |             |                  |      will be the open
+#        |        |             |                  |      ports.
 #        |        |             |                  |
 #        |        |             |                  └─ Select the second field
 #        |        |             |                      to print which will
@@ -209,7 +209,7 @@ sed -e 's/^[ \t]*//' | awk -F '/' '{print $5}' | grep -v "^$" | sort | uniq -c \
 ```bash
 NMAP_FILE=output.grep
 
-egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2 -f4- | \
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2,4- | \
 sed -n -e 's/Ignored.*//p'  | \
 awk '{print "Host: " $1 " Ports: " NF-1; $1=""; for(i=2; i<=NF; i++) { a=a" "$i; }; split(a,s,","); for(e in s) { split(s[e],v,"/"); printf "%-8s %s/%-7s %s\n" , v[2], v[3], v[1], v[5]}; a="" }'
 ```
@@ -243,7 +243,7 @@ filtered tcp/58369
 ```bash
 NMAP_FILE=output.grep
 
-egrep -v "^#|Status: Up" $NMAP_FILE | cut -d ' ' -f2 -f4- | \
+egrep -v "^#|Status: Up" $NMAP_FILE | cut -d' ' -f2,4- | \
 awk -F, '{split($1,a," "); split(a[2],b,"/"); print a[1] " " b[1]; for(i=2; i<=NF; i++) { split($i,c,"/"); print a[1] c[1] }}' \
  | xargs -L1 nc -v -w1
 ```
